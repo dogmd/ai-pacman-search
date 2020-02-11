@@ -70,54 +70,7 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
-
-def genericSearch(problem, alg):
-    if alg == 'dfs':
-        steps = util.Stack()
-    elif alg == 'bfs':
-        steps = util.Queue()
-    elif alg == 'ucs':
-        steps = util.PriorityQueue()
-    # Store (state, action, cost), and parent
-    if alg == 'ucs':
-        steps.push([(problem.getStartState(), None, 0), None], 0)
-    else:
-        steps.push([(problem.getStartState(), None, 0), None])
-    seenStates = [problem.getStartState()]
-
-    while not steps.isEmpty():
-        print(steps)
-        step = steps.pop()
-        state = step[0][0]
-        print(state)
-        print(step)
-        seenStates.append(state)
-        if problem.isGoalState(state):
-            print(state)
-            actions = []
-            # Backtrack through parents to get actions
-            while step:
-                actions.insert(0, step[0][1])
-                step = step[1]
-            return actions[1:]
-        
-        successors = problem.getSuccessors(state)
-        print(successors)
-        print()
-        for successor in successors:
-            newState = successor[0]
-            if newState not in seenStates:
-                if alg == 'bfs' or alg == 'ucs':
-                    seenStates.append(newState)
-                if alg == 'ucs':
-                    steps.push([(newState, successor[1], successor[2] + step[0][2]), step], successor[2] + step[0][2])
-                else:
-                    steps.push([successor, step])
-
-    # Goal not found
-    return []
-    
+    return  [s, s, w, s, w, w, s, w]    
 
 def depthFirstSearch(problem):
     """
@@ -169,10 +122,13 @@ def breadthFirstSearch(problem):
     seenStates = [problem.getStartState()]
 
     while not steps.isEmpty():
+        #print(steps.list)
         step = steps.pop()
         state = step[0][0]
+        print(state)
         seenStates.append(state)
         if problem.isGoalState(state):
+            
             actions = []
             # Backtrack through parents to get actions
             while step:
@@ -181,6 +137,7 @@ def breadthFirstSearch(problem):
             return actions[1:]
         
         successors = problem.getSuccessors(state)
+        #print(successors)
         for successor in successors:
             newState = successor[0]
             if newState not in seenStates:
@@ -199,14 +156,10 @@ def uniformCostSearch(problem):
     seenStates = {problem.getStartState(): 0}
 
     while not steps.isEmpty():
-        #print(steps)
         step = steps.pop()
         state = step[0][0]
-        #print(state)
-        #print(step)
         seenStates[state] = step[0][2]
         if problem.isGoalState(state):
-            #print(state)
             actions = []
             # Backtrack through parents to get actions
             while step:
@@ -215,8 +168,6 @@ def uniformCostSearch(problem):
             return actions[1:]
         
         successors = problem.getSuccessors(state)
-        #print(successors)
-        #print()
         for successor in successors:
             newState = successor[0]
             totalCost = successor[2] + step[0][2]
@@ -238,19 +189,16 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     steps = util.PriorityQueue()
-    print(heuristic)
     # Store (state, action, cost), and parent
-    steps.push([(problem.getStartState(), None, 0), None], 0)
+    startState = problem.getStartState()
+    steps.push([(problem.getStartState(), None, heuristic(startState, problem)), None], heuristic(startState, problem))
     seenStates = {problem.getStartState(): 0}
 
     while not steps.isEmpty():
-        print(steps)
         step = steps.pop()
         state = step[0][0]
-        print(step)
         seenStates[state] = step[0][2]
         if problem.isGoalState(state):
-            #print(state)
             actions = []
             # Backtrack through parents to get actions
             while step:
@@ -259,14 +207,13 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             return actions[1:]
         
         successors = problem.getSuccessors(state)
-        print(successors)
-        print()
         for successor in successors:
             newState = successor[0]
-            totalCost = heuristic(newState, problem) + step[0][2] + successor[2]
-            if newState not in seenStates or seenStates[newState] > totalCost:       
-                seenStates[newState] = totalCost
-                steps.push([(newState, successor[1], totalCost), step], totalCost)
+            pathCost = step[0][2] + successor[2]
+            estimatedCost = heuristic(newState, problem) + pathCost
+            if newState not in seenStates or seenStates[newState] > pathCost:       
+                seenStates[newState] = pathCost
+                steps.push([(newState, successor[1], pathCost), step], estimatedCost)
 
     # Goal not found
     return []
