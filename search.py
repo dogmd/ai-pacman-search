@@ -122,10 +122,8 @@ def breadthFirstSearch(problem):
     seenStates = [problem.getStartState()]
 
     while not steps.isEmpty():
-        #print(steps.list)
         step = steps.pop()
         state = step[0][0]
-        print(state)
         seenStates.append(state)
         if problem.isGoalState(state):
             
@@ -137,7 +135,6 @@ def breadthFirstSearch(problem):
             return actions[1:]
         
         successors = problem.getSuccessors(state)
-        #print(successors)
         for successor in successors:
             newState = successor[0]
             if newState not in seenStates:
